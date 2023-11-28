@@ -12,8 +12,6 @@ public interface SchemeDB {
 
     String TAB_NAME_Pro = "productos";
 
-    String TAB_NAME_Pro_Fav = "productos_fav";
-
     String COL_ID_PRODUCT = "id_producto";
 
     String COL_NAME = "nombre";
@@ -30,5 +28,5 @@ public interface SchemeDB {
 
     String COL_QUANTITY = "cantidad";
 
-    String COL_DESCRIPCION = "descripción";
+    String COL_DESCRIPCION = "descripcion";
 }

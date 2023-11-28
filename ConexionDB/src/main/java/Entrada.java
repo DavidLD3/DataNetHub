@@ -28,6 +28,7 @@ public class Entrada {
         JSONObject json = new JSONObject(new JSONTokener(jsonContent));
         JSONArray productos = json.getJSONArray("products");
 
+
         int opcion;
         do {
 
@@ -36,9 +37,11 @@ public class Entrada {
             System.out.println("2 - Mostrar Productos");
             System.out.println("3 - Mostrar Pedidos");
             System.out.println("4 - Mostrar Productos con Precio Inferior a 600");
-            System.out.println("5 - Insertar Empleados");
-            System.out.println("6 - Insertar Productos");
-            System.out.println("7 - Insertar Pedidos");
+            System.out.println("5 - Mostrar Productos con Precio Superior a 1000");
+            System.out.println("6 - Insertar Empleados");
+            System.out.println("7 - Insertar Productos");
+            System.out.println("8 - Insertar Pedidos");
+            System.out.println("9 - Insertar Productos +1000");
             System.out.println("0 - Salir");
 
             opcion = scanner.nextInt();
@@ -57,13 +60,19 @@ public class Entrada {
                     mostrarProductosConPrecioInferiorA600();
                     break;
                 case 5:
-                    insertarEmpleados();
+                    mostrarProductosFavSuperioresA1000() ;
                     break;
                 case 6:
-                    insertarProductos(productos);
+                    insertarEmpleados();
                     break;
                 case 7:
+                    insertarProductos(productos);
+                    break;
+                case 8:
                     insertarPedidos();
+                    break;
+                case 9:
+                    insertarProductosFav();
                     break;
                 case 0:
                     System.out.println("Saliendo de la aplicacion");
@@ -77,7 +86,6 @@ public class Entrada {
         scanner.close();
 
     }
-
 
     private static String getContentFromUrl(String urlString) throws IOException {
         URL url = new URL(urlString);
@@ -155,21 +163,21 @@ public class Entrada {
                     SchemeDB.TAB_NAME_Ped,SchemeDB.COL_ID_PRODUCT, SchemeDB.COL_DESCRIPCION, SchemeDB.COL_TOTAL);
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(insertPedidoQuery)) {
-                preparedStatement.setInt(1, 1);  // ID del producto
+                preparedStatement.setInt(1, 6);  // ID del producto
                 preparedStatement.setString(2,"OPPO F19 is officially announced on April 2021");
                 preparedStatement.setDouble(3, 280);  // Total del pedido
 
                 preparedStatement.executeUpdate();
             }
             try (PreparedStatement preparedStatement = connection.prepareStatement(insertPedidoQuery)) {
-                preparedStatement.setInt(1, 2);  // ID del producto
+                preparedStatement.setInt(1, 5);  // ID del producto
                 preparedStatement.setString(2,"Samsung's new variant which goes beyond Galaxy to the Universe");
                 preparedStatement.setDouble(3, 1249);  // Total del pedido
 
                 preparedStatement.executeUpdate();
             }
             try (PreparedStatement preparedStatement = connection.prepareStatement(insertPedidoQuery)) {
-                preparedStatement.setInt(1, 3);  // ID del producto
+                preparedStatement.setInt(1, 8);  // ID del producto
                 preparedStatement.setString(2,"MacBook Pro 2021 with mini-LED display may launch between September, November");
                 preparedStatement.setDouble(3, 1749);  // Total del pedido
 
@@ -177,7 +185,7 @@ public class Entrada {
             }
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(insertPedidoQuery)) {
-                preparedStatement.setInt(1, 4);  // ID del producto
+                preparedStatement.setInt(1, 11);  // ID del producto
                 preparedStatement.setString(2,"Infinix Inbook X1 Ci3 10th 8GB 256GB 14 Win10 Grey – 1 Year Warranty");
                 preparedStatement.setDouble(3, 1099);  // Total del pedido
 
@@ -226,7 +234,7 @@ public class Entrada {
                 int cantidad = resultSet.getInt(SchemeDB.COL_QUANTITY);
                 double precio = resultSet.getDouble(SchemeDB.COL_PRICE);
 
-                System.out.println(String.format("Producto: %s, Descripción: %s, Cantidad: %d, Precio: %.2f",
+                System.out.println(String.format("Producto: %s, Descripcion: %s, Cantidad: %d, Precio: %.2f",
                         nombre, descripcion, cantidad, precio));
             }
 
@@ -234,7 +242,6 @@ public class Entrada {
             throw new RuntimeException("Error al mostrar productos", e);
         }
     }
-
     private static void mostrarPedidos() {
         Connection connection = GestionDB.getConnection();
 
@@ -255,7 +262,6 @@ public class Entrada {
             throw new RuntimeException("Error al mostrar pedidos", e);
         }
     }
-
     private static void mostrarProductosConPrecioInferiorA600() {
         Connection connection = GestionDB.getConnection();
 
@@ -273,6 +279,39 @@ public class Entrada {
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al mostrar productos con precio inferior a 600€", e);
+        }
+    }
+    private static void mostrarProductosFavSuperioresA1000() {
+        Connection connection = GestionDB.getConnection();
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(
+                    String.format("SELECT * FROM %s WHERE %s > 1000", SchemeDB.TAB_NAME_Pro, SchemeDB.COL_PRICE));
+
+            while (resultSet.next()) {
+                String nombre = resultSet.getString(SchemeDB.COL_NAME);
+                double precio = resultSet.getDouble(SchemeDB.COL_PRICE);
+
+                System.out.println(String.format("Producto: %s, Precio: %.2f", nombre, precio));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al mostrar productos con precio inferior a 600€", e);
+        }
+    }
+    private static void insertarProductosFav() {
+        Connection connection = GestionDB.getConnection();
+
+        try {
+            String insertProductosFavQuery = String.format("INSERT INTO %s (%s) SELECT %s FROM %s WHERE %s > 1000",
+                    "Productos_Fav", "id_producto", "id", "Productos", "precio");
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(insertProductosFavQuery)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al mostrar productos con precio superior a 1000€", e);
         }
     }
 
